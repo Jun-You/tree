@@ -12,11 +12,29 @@
   var keyword = ref('');
   var module_name = ref('MED');
   var results = ref([]);
+  let displayIcp = ref(true);
   let message = null;
+  let areaType = 1; // 1 for range, 2 for polygon
+  //let longitudes = [121,122,122,121];
+  //let latitudes = [31,31,32,32];
+  let longitudes = null;
+  let latitudes = null;
   function navUrl(url){
     window.location.href = url;
   }
   function sense() {
+    switch(areaType) {
+      case 1:senseByRange();
+            break;
+      case 2:senseByPolygon();
+            break;
+      default:
+            break;
+    }
+    
+  }
+
+  function senseByRange() {
     results.value = [];
     if (location === null) {
       alert("获取位置失败")
@@ -33,8 +51,8 @@
       matchKeyword: keyword.value,
       clientPort: 0
     });
-    document.getElementsByClassName('topSty')[0].style.opacity=0
-    document.getElementsByClassName('btmSty')[0].style.top='30px'
+
+    updateBtn();
 
     if (ws.readyState !== WebSocket.OPEN) {
       startWebSocket();
@@ -43,7 +61,39 @@
     
     ws.send(message)
     message = null;
+    displayIcp.value = false;
   }
+
+  function senseByPolygon() {
+    results.value = [];
+    if (null === longitudes || longitudes.length < 3) {
+      alert('未正确选择范围');
+      return;
+    }
+    message = JSON.stringify({
+      command: 'sense',
+      areaType: 2,
+      longitudes: longitudes,
+      latitudes: latitudes,
+      uuid: '0eb25ca4-8b72-49d2-a7c3-1e44f13d3d9a', //todo generate uuid randomly
+      targetName: module_name.value,
+      targetNamespace: 'SBG',
+      matchKeyword: keyword.value,
+      clientPort: 0
+    });
+
+    updateBtn();
+
+    if (ws.readyState !== WebSocket.OPEN) {
+      startWebSocket();
+      return
+    }
+    
+    ws.send(message)
+    message = null;
+    displayIcp.value = false;
+  }
+
   function updateBtn(){
     document.getElementsByClassName('topSty')[0].style.opacity=0
     document.getElementsByClassName('btmSty')[0].style.top='30px'
@@ -64,8 +114,11 @@
         console.log(message)
         const json = JSON.parse(message);
         json.url = `http://[${json.ipAddress}]:${json.port}`;
-        const filename = json.iconUrl.split('/icon/')[1].replaceAll('/', '-');
-        json.iconUrl = `https://www.shugan.tech/icon/${filename}.jpg`;
+        //json.url = `http://interface.shugan.tech/supermedia/${json.ipAddress.replaceAll(':','-')}/${json.port}`;
+        //const filename = json.iconUrl.split('/icon/')[1].replaceAll('/', '-');
+        //json.iconUrl = `https://www.shugan.tech/icon/${filename}.jpg`;
+        const path = json.iconUrl.split('/icon/')[1];
+        json.iconUrl = `https://www.shugan.tech/icon/${path}`;
         results.value.push(json);
       }
     }
@@ -102,25 +155,56 @@
 
   window.onload = prepare;
 
+  /**
+  let port = null;
+  let reader = null;
+  let writer = null;
+  const filters = [
+    { usbVendorId: 0xbabe, usbProductId: 0x1314 }
+  ];
+
+  async function setting(){
+    if ('serial' in navigator) {
+      try{
+        port = await navigator.serial.requestPort({ filters });
+        
+      } catch(err){
+        console.log(err)
+      }
+      if (port !== null) {
+        await port.open({baudRate: 12800})
+        while (port.readable) {
+          reader = port.readable.getReader();
+
+          try {
+            while (true) {
+              const { value, done } = await reader.read();
+              if (done) {
+                // 允许稍后关闭串口。
+                //reader.releaseLock();
+                break;
+              }
+              if (value) {
+                console.log(value);
+              }
+            }
+          } catch (error) {
+            // TODO: 处理非致命的读错误。
+          }
+        }
+        //reader = port.readable.getReader();
+      } else {
+      }
+    }
+  }
+
+  */
+
 
 
 </script>
 
 <template>
-  <!-- <div> -->
-    <!-- <div>
-      <select id="module-name" v-model="module_name">
-        <option value="MED">超媒体</option>
-        <option value="WEB" disabled>网页</option>
-        <option value="FTP" disabled>文件</option>
-      </select>
-      <input id="keyword-input" type="text" v-model="keyword">
-      <button id="sense-button" @click="sense">感知</button>
-    </div>
-    <div>
-      <a v-for="result in results" :href = result.url><img width=50 height= 50  :src=result.iconUrl>{{ result.title }},{{ result.description }}</a>
-    </div>
-  </div> -->
   <div style="background-color: #fff;">
     <div class="topSty">
       <div class="tabsSty">
@@ -137,6 +221,11 @@
         <div></div>
       </div>
     </div>
+    <!--
+    <div>
+      <button id="setting" @click="setting">设置</button>
+    </div>
+    -->
     <div style="text-align: center;width: 343;padding-top: 50px;box-sizing:border-box;">
       <img :src="imgs" alt="" style="width: 188px;height: auto;">
 
@@ -146,15 +235,6 @@
     <div>
 
       <div class="btmSty">
-        <!-- <div style="width: 343px;margin: 0 auto;display: flex;">
-        <select id="module-name" v-model="senseRange">
-            <option :value="200">超近</option>
-            <option :value="400">近</option>
-            <option :value="800">中</option>
-            <option :value="2000">远</option>
-            <option :value="5000">超级远</option>
-          </select>
-      </div> -->
   <div class="centerSearchSty" style="background-color: #fff;">
       
       <div>
@@ -192,7 +272,7 @@
         </div>
       </div>
  
-      <div>
+      <div style="min-height: 40vh;">
         <div class="listSty" v-for="item in results" @click="navUrl(item.url)">
           <div>
             <img :src="item.iconUrl" alt="">
@@ -205,12 +285,17 @@
           </div>
         </div>
       </div>
+      <div v-if="displayIcp" style="color: #ccc;text-align: center;padding-bottom: 50px;">
+        <a href="http://beian.miit.gov.cn/" style="font-size: 15px;color: #ccc;">
+          沪ICP备2024053151号
+        </a>
+       </div>
+
     </div>
 
       </div>
       
     
-
   </div>
 </template>
 
