@@ -47,7 +47,7 @@
       senseRange: senseRange.value,
       uuid: '0eb25ca4-8b72-49d2-a7c3-1e44f13d3d9a', //todo generate uuid randomly
       targetName: module_name.value,
-      targetNamespace: 'SBG',
+      targetNamespace: 'STD',
       matchKeyword: keyword.value,
       clientPort: 0
     });
@@ -77,7 +77,7 @@
       latitudes: latitudes,
       uuid: '0eb25ca4-8b72-49d2-a7c3-1e44f13d3d9a', //todo generate uuid randomly
       targetName: module_name.value,
-      targetNamespace: 'SBG',
+      targetNamespace: 'STD',
       matchKeyword: keyword.value,
       clientPort: 0
     });
