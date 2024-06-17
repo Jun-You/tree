@@ -21,12 +21,14 @@ import coordtransform from 'coordtransform'
   let location = ref(null);
   let senseRange = ref(800);
   var keyword = ref('');
-  var module_name = ref('MED');
+  var module_name = ref('WEB');
+  var namespace = ref('STANDARD'); 
   var results = ref([]);
   let displayIcp = ref(true);
   let message = null;
   let downType = ref(1)
   let areaType = ref(1); // 1 for range, 2 for polygon
+  let cache = [];
   //let longitudes = [121,122,122,121];
   //let latitudes = [31,31,32,32];
   let longitudes = null;
@@ -43,6 +45,7 @@ import coordtransform from 'coordtransform'
     alert(params)
   }
   function sense() {
+    cache = [];
     document.getElementsByClassName("btmSty")[0].style.top='50px'
     switch(areaType.value) {
       case 1:senseByRange();
@@ -72,7 +75,7 @@ import coordtransform from 'coordtransform'
       senseRange: senseRange.value,
       uuid: '0eb25ca4-8b72-49d2-a7c3-1e44f13d3d9a', //todo generate uuid randomly
       targetName: module_name.value,
-      targetNamespace: 'STD',
+      targetNamespace: namespace.value,
       matchKeyword: keyword.value,
       clientPort: 0
     });
@@ -109,7 +112,7 @@ import coordtransform from 'coordtransform'
       latitudes: lats,
       uuid: '0eb25ca4-8b72-49d2-a7c3-1e44f13d3d9a', //todo generate uuid randomly
       targetName: module_name.value,
-      targetNamespace: 'STD',
+      targetNamespace: namespace.value,
       matchKeyword: keyword.value,
       clientPort: 0
     });
@@ -144,14 +147,21 @@ import coordtransform from 'coordtransform'
       ws.onmessage = async function (evt) {
         const message = await evt.data.text();
         // console.log(message)
-        const json = JSON.parse(message);
-        json.url = `http://[${json.ipAddress}]:${json.port}`;
-        //json.url = `http://interface.shugan.tech/supermedia/${json.ipAddress.replaceAll(':','-')}/${json.port}`;
-        //const filename = json.iconUrl.split('/icon/')[1].replaceAll('/', '-');
-        //json.iconUrl = `https://www.shugan.tech/icon/${filename}.jpg`;
-        const path = json.iconUrl.split('/icon/')[1];
-        json.iconUrl = `https://www.shugan.tech/icon/${path}`;
-        results.value.push(json);
+        const array = JSON.parse(message);
+        for (var i = 0; i < array.length; i++) {
+          const item = array[i];
+          if (item.parameters && item.parameters.url) {
+            item.url = item.parameters.url;
+          } else {
+          item.url = `http://[${item.ipAddress}]:${item.port}`;
+          }
+          const path = item.iconUrl.split('/icon/')[1];
+          item.iconUrl = `https://www.shugan.tech/icon/${path}`;
+          if (cache.includes(item.url))
+            continue;
+          results.value.push(item);
+          cache.push(item.url);
+        }
       }
     }
   }
@@ -492,15 +502,15 @@ import coordtransform from 'coordtransform'
   <div style="background-color: #fff;">
     <div class="topSty">
       <div class="tabsSty">
-      <div class="Selected">
-        <div>超媒体</div>
-        <div></div>
-      </div>
-      <div>
+      <div  :class="namespace =='STANDARD'? 'Selected':''" @click="namespace='STANDARD'">
         <div>网页</div>
         <div></div>
       </div>
-      <div>
+      <div :class="namespace=='MEDIA'? 'Selected':''" @click="namespace='MEDIA'">
+        <div>超媒体</div>
+        <div></div>
+      </div>
+      <div  :class="namespace=='FILE'? 'Selected':''" @click="namespace='FILE'">
         <div>文件</div>
         <div></div>
       </div>
