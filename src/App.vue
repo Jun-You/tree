@@ -257,7 +257,7 @@ import coordtransform from 'coordtransform'
     });
   })
   function drawCircle(radius){
-    document.getElementsByClassName("btmSty")[0].style.top='50px'
+    document.getElementsByClassName("btmSty")[0].style.top='20px'
     let time=300
     if( document.getElementsByClassName("fullScreen")[0].style.height=='244px'){
       time=0
@@ -502,19 +502,48 @@ import coordtransform from 'coordtransform'
   <div style="background-color: #fff;">
     <div class="topSty">
       <div class="tabsSty">
-      <div  :class="namespace =='STANDARD'? 'Selected':''" @click="namespace='STANDARD'">
-        <div>网页</div>
-        <div></div>
+        <div  :class="namespace =='STANDARD'? 'Selected':''" @click="namespace='STANDARD'">
+          <div>网页</div>
+          <div></div>
+        </div>
+        <div :class="namespace=='MEDIA'? 'Selected':''" @click="namespace='MEDIA'">
+          <div>超媒体</div>
+          <div></div>
+        </div>
+        <div  :class="namespace=='BUSINESS'? 'Selected':''" @click="namespace='BUSINESS'">
+          <div>商业</div>
+          <div></div>
+        </div>
+        <div  :class="namespace=='ENTERTAINMENT'? 'Selected':''" @click="namespace='ENTERTAINMENT'">
+          <div>娱乐</div>
+          <div></div>
+        </div>
+        <div  :class="namespace=='FILE'? 'Selected':''" @click="namespace='FILE'">
+          <div>文件</div>
+          <div></div>
+        </div>
+        
+        <div  :class="namespace=='GUIDE'? 'Selected':''" @click="namespace='GUIDE'">
+          <div>攻略</div>
+          <div></div>
+        </div>
+        <div  :class="namespace=='OFFICIAL'? 'Selected':''" @click="namespace='OFFICIAL'">
+          <div>官方</div>
+          <div></div>
+        </div>
+        <div  :class="namespace=='NOTICE'? 'Selected':''" @click="namespace='NOTICE'">
+          <div>公告</div>
+          <div></div>
+        </div>
+        <div  :class="namespace=='HELP'? 'Selected':''" @click="namespace='HELP'">
+          <div>互助</div>
+          <div></div>
+        </div>
+        <div  :class="namespace=='CULTURE'? 'Selected':''" @click="namespace='CULTURE'">
+          <div>人文</div>
+          <div></div>
+        </div>
       </div>
-      <div :class="namespace=='MEDIA'? 'Selected':''" @click="namespace='MEDIA'">
-        <div>超媒体</div>
-        <div></div>
-      </div>
-      <div  :class="namespace=='FILE'? 'Selected':''" @click="namespace='FILE'">
-        <div>文件</div>
-        <div></div>
-      </div>
-    </div>
     <!--
     <div>
       <button id="setting" @click="setting">设置</button>
@@ -764,16 +793,18 @@ color: #898989;
 
 .tabsSty{
   width: 343px;
-  height: 60px;
+  /* height: 30px; */
   margin: 0 auto;
   display: flex;
   align-items: center;
   user-select: none;
   display: flex;
+  flex-wrap: wrap;
   transition: 0s all;
 }
 .tabsSty>div{
-  width: 70px;
+  width: 55px;
+  height: 30px;
   font-size: 26rpx;
   font-family: PingFang SC, PingFang SC;
   font-weight: 400;
@@ -782,17 +813,17 @@ color: #898989;
 
 }
 .tabsSty>.Selected{
-  font-size: 14px;
+  font-size: 18px;
   font-family: PingFang SC, PingFang SC;
   font-weight: 400;
-  color: #000000;
+  color: #b84343;
   transition: 0 all;
 
 }
 .tabsSty>.Selected>div:nth-child(2){
   width: 16px;
   height: 2px;
-  background: #000000;
+  background: #b84343;
   border-radius: 2px;
   margin: 0 auto;
 }
